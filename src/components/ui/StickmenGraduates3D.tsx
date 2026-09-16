@@ -6,27 +6,6 @@ interface StickmenGraduates3DProps {
   triggerToss?: boolean;
 }
 
-interface CapPhysics {
-  group: THREE.Group;
-  initialPos: THREE.Vector3;
-  initialRot: THREE.Euler;
-  vel: THREE.Vector3;
-  rotVel: THREE.Vector3;
-  isFlying: boolean;
-  tossTime: number;
-}
-
-interface StickmanRig {
-  root: THREE.Group;
-  leftArm: THREE.Group;
-  rightArm: THREE.Group;
-  diploma?: THREE.Group;
-  capPhysics: CapPhysics;
-  baseY: number;
-  bobPhase: number;
-  isCenter: boolean;
-}
-
 export const StickmenGraduates3D: React.FC<StickmenGraduates3DProps> = ({
   onToss,
   triggerToss,
@@ -39,15 +18,16 @@ export const StickmenGraduates3D: React.FC<StickmenGraduates3DProps> = ({
     const container = containerRef.current;
     if (!container) return;
 
-    // --- Scene, Camera, Renderer ---
+    // --- Viewport Setup ---
     const width = container.clientWidth || 560;
-    const height = container.clientHeight || 440;
+    const height = container.clientHeight || 480;
 
     const scene = new THREE.Scene();
 
-    const camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 100);
-    camera.position.set(0, 0.9, 8.6);
-    camera.lookAt(0, 0.45, 0);
+    // Cinematic perspective camera, low-angle hero framing
+    const camera = new THREE.PerspectiveCamera(34, width / height, 0.1, 100);
+    camera.position.set(0, 0.7, 6.2);
+    camera.lookAt(0, 0.25, 0);
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -57,342 +37,433 @@ export const StickmenGraduates3D: React.FC<StickmenGraduates3DProps> = ({
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
-    renderer.setClearColor(0x000000, 0); // Clean transparent, no card/frame
+    renderer.toneMappingExposure = 1.25;
+    renderer.setClearColor(0x000000, 0); // Pure transparent, no frame
     container.appendChild(renderer.domElement);
 
-    // --- Studio Lighting ---
-    // Ambient light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.25);
+    // --- Studio Lighting Rig (High Contrast, Rich Silhouettes) ---
+    // Soft ambient
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.15);
     scene.add(ambientLight);
 
-    // Main Key Light from top-front-right
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.4);
-    keyLight.position.set(4.5, 7.5, 5.5);
+    // Key Light: Crisp front-right key light
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
+    keyLight.position.set(4, 6, 5);
     scene.add(keyLight);
 
-    // Soft Rim Light from back-left for sleek edge illumination on black silhouettes
-    const rimLight = new THREE.DirectionalLight(0x93c5fd, 1.9);
-    rimLight.position.set(-5, 5, -4);
+    // Rim Light: Vibrant electric cyan-blue backlight highlighting edges
+    const rimLight = new THREE.DirectionalLight(0x60a5fa, 2.8);
+    rimLight.position.set(-4.5, 4, -4);
     scene.add(rimLight);
 
-    // Warm fill light
-    const fillLight = new THREE.DirectionalLight(0xf1f5f9, 0.9);
-    fillLight.position.set(-3.5, 2.5, 4.5);
+    // Fill Light: Soft slate fill on left
+    const fillLight = new THREE.DirectionalLight(0xe2e8f0, 0.9);
+    fillLight.position.set(-3.5, 1.5, 3.5);
     scene.add(fillLight);
 
-    // --- PBR Materials (Matching Reference 3D Photos) ---
-    // Matte smooth black stickman mannequin body
-    const blackBodyMat = new THREE.MeshStandardMaterial({
-      color: 0x111215,
-      roughness: 0.35,
-      metalness: 0.15,
+    // Subtle upward ground bounce light
+    const bounceLight = new THREE.DirectionalLight(0x94a3b8, 0.4);
+    bounceLight.position.set(0, -3, 2);
+    scene.add(bounceLight);
+
+    // --- Premium PBR Materials ---
+    // Smooth velvet black mannequin stickman skin (soft specular highlights)
+    const blackSkinMat = new THREE.MeshStandardMaterial({
+      color: 0x141518,
+      roughness: 0.28,
+      metalness: 0.25,
     });
 
-    // Dark charcoal draped academic gown / robe
-    const robeMat = new THREE.MeshStandardMaterial({
-      color: 0x363940,
-      roughness: 0.72,
-      metalness: 0.08,
+    // Dark charcoal pleated graduation gown cloth
+    const gownMat = new THREE.MeshStandardMaterial({
+      color: 0x2b2e35,
+      roughness: 0.78,
+      metalness: 0.06,
+    });
+
+    // Darker gown trim / front placket
+    const gownTrimMat = new THREE.MeshStandardMaterial({
+      color: 0x1c1e23,
+      roughness: 0.6,
+      metalness: 0.12,
     });
 
     // Mortarboard cap fabric
     const capMat = new THREE.MeshStandardMaterial({
-      color: 0x18191d,
-      roughness: 0.45,
-      metalness: 0.12,
-    });
-
-    // Cap tassel cord & brush
-    const tasselMat = new THREE.MeshStandardMaterial({
-      color: 0x24262c,
-      roughness: 0.6,
-      metalness: 0.05,
-    });
-
-    // White diploma parchment roll
-    const diplomaMat = new THREE.MeshStandardMaterial({
-      color: 0xf8fafc,
-      roughness: 0.32,
-      metalness: 0.04,
-    });
-
-    // Red diploma ribbon
-    const ribbonMat = new THREE.MeshStandardMaterial({
-      color: 0xdc2626,
-      roughness: 0.35,
+      color: 0x16181d,
+      roughness: 0.4,
       metalness: 0.15,
     });
 
-    // Soft contact ground shadow
-    const shadowMat = new THREE.MeshBasicMaterial({
-      color: 0x000000,
-      transparent: true,
-      opacity: 0.28,
+    // Cap tassel silk / gold accent
+    const tasselMat = new THREE.MeshStandardMaterial({
+      color: 0x24262c,
+      roughness: 0.5,
+      metalness: 0.1,
     });
 
-    // --- Stickman Generator ---
-    const stickmen: StickmanRig[] = [];
+    const tasselGoldBand = new THREE.MeshStandardMaterial({
+      color: 0xf59e0b,
+      roughness: 0.3,
+      metalness: 0.6,
+    });
 
-    const createStickman = (
-      x: number,
-      z: number,
-      scale: number,
-      angleY: number,
-      hasDiploma: boolean,
-      isCenter: boolean,
-      bobPhase: number
-    ): StickmanRig => {
-      const root = new THREE.Group();
-      root.position.set(x, -1.35, z);
-      root.rotation.y = angleY;
-      root.scale.set(scale, scale, scale);
+    // Crisp parchment diploma roll
+    const diplomaMat = new THREE.MeshStandardMaterial({
+      color: 0xfbfbfe,
+      roughness: 0.28,
+      metalness: 0.04,
+    });
 
-      // Contact shadow under feet
-      const shadowGeo = new THREE.CircleGeometry(0.48, 24);
-      const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
-      shadowMesh.rotation.x = -Math.PI / 2;
-      shadowMesh.position.set(0, 0.01, 0);
-      root.add(shadowMesh);
+    // Crimson red satin ribbon
+    const ribbonMat = new THREE.MeshStandardMaterial({
+      color: 0xdc2626,
+      roughness: 0.3,
+      metalness: 0.18,
+    });
 
-      // 1. Legs
-      const legGeo = new THREE.CylinderGeometry(0.045, 0.045, 0.85, 16);
-      const leftLeg = new THREE.Mesh(legGeo, blackBodyMat);
-      leftLeg.position.set(-0.16, 0.42, 0);
-      root.add(leftLeg);
+    // --- Master Stickman Group ---
+    const stickmanRoot = new THREE.Group();
+    stickmanRoot.position.set(0, -1.3, 0);
+    scene.add(stickmanRoot);
 
-      const rightLeg = new THREE.Mesh(legGeo, blackBodyMat);
-      rightLeg.position.set(0.16, 0.42, 0);
-      root.add(rightLeg);
+    // 1. Multi-tier Ground Contact Shadow (Soft AO)
+    const shadowGroup = new THREE.Group();
+    shadowGroup.position.set(0, 0.005, 0);
 
-      // Shoes (stretched black spheres)
-      const shoeGeo = new THREE.SphereGeometry(0.09, 16, 16);
-      shoeGeo.scale(1.1, 0.6, 1.8);
-      const leftShoe = new THREE.Mesh(shoeGeo, blackBodyMat);
-      leftShoe.position.set(-0.16, 0.05, 0.05);
-      root.add(leftShoe);
+    const innerShadowGeo = new THREE.CircleGeometry(0.42, 32);
+    const innerShadowMat = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      transparent: true,
+      opacity: 0.45,
+    });
+    const innerShadow = new THREE.Mesh(innerShadowGeo, innerShadowMat);
+    innerShadow.rotation.x = -Math.PI / 2;
+    shadowGroup.add(innerShadow);
 
-      const rightShoe = new THREE.Mesh(shoeGeo, blackBodyMat);
-      rightShoe.position.set(0.16, 0.05, 0.05);
-      root.add(rightShoe);
+    const outerShadowGeo = new THREE.CircleGeometry(0.85, 32);
+    const outerShadowMat = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      transparent: true,
+      opacity: 0.22,
+    });
+    const outerShadow = new THREE.Mesh(outerShadowGeo, outerShadowMat);
+    outerShadow.rotation.x = -Math.PI / 2;
+    shadowGroup.add(outerShadow);
 
-      // 2. Robe / Gown Body (Tapered draped cylinder)
-      const robeGeo = new THREE.CylinderGeometry(0.25, 0.46, 1.3, 24);
-      const robe = new THREE.Mesh(robeGeo, robeMat);
-      robe.position.set(0, 1.28, 0);
-      root.add(robe);
+    stickmanRoot.add(shadowGroup);
 
-      // 3. Head & Neck
-      const neckGeo = new THREE.CylinderGeometry(0.065, 0.065, 0.22, 16);
-      const neck = new THREE.Mesh(neckGeo, blackBodyMat);
-      neck.position.set(0, 1.95, 0);
-      root.add(neck);
+    // 2. Sculpted Shoes & Legs
+    const legsGroup = new THREE.Group();
 
-      const headGeo = new THREE.SphereGeometry(0.33, 32, 32);
-      const head = new THREE.Mesh(headGeo, blackBodyMat);
-      head.position.set(0, 2.22, 0);
-      root.add(head);
+    const createShoe = (x: number): THREE.Group => {
+      const shoeG = new THREE.Group();
+      shoeG.position.set(x, 0, 0);
 
-      // 4. Arms & Sleeves
-      // Left Arm
-      const leftArm = new THREE.Group();
-      leftArm.position.set(-0.3, 1.76, 0);
+      // Sole
+      const soleGeo = new THREE.BoxGeometry(0.18, 0.04, 0.38);
+      const sole = new THREE.Mesh(soleGeo, blackSkinMat);
+      sole.position.set(0, 0.02, 0.05);
+      shoeG.add(sole);
 
-      const sleeveGeo = new THREE.CylinderGeometry(0.11, 0.22, 0.68, 16);
-      const leftSleeve = new THREE.Mesh(sleeveGeo, robeMat);
-      leftSleeve.position.set(-0.1, -0.3, 0);
-      leftSleeve.rotation.z = 0.25;
-      leftArm.add(leftSleeve);
+      // Upper shoe body
+      const upperGeo = new THREE.SphereGeometry(0.12, 24, 16);
+      upperGeo.scale(1.0, 0.65, 1.7);
+      const upper = new THREE.Mesh(upperGeo, blackSkinMat);
+      upper.position.set(0, 0.07, 0.06);
+      shoeG.add(upper);
 
-      const armStickGeo = new THREE.CylinderGeometry(0.038, 0.038, 0.55, 12);
-      const leftStick = new THREE.Mesh(armStickGeo, blackBodyMat);
-      leftStick.position.set(-0.16, -0.55, 0);
-      leftStick.rotation.z = 0.25;
-      leftArm.add(leftStick);
-
-      const handGeo = new THREE.SphereGeometry(0.065, 16, 16);
-      const leftHand = new THREE.Mesh(handGeo, blackBodyMat);
-      leftHand.position.set(-0.24, -0.82, 0);
-      leftArm.add(leftHand);
-
-      root.add(leftArm);
-
-      // Right Arm
-      const rightArm = new THREE.Group();
-      rightArm.position.set(0.3, 1.76, 0);
-
-      const rightSleeve = new THREE.Mesh(sleeveGeo, robeMat);
-      rightSleeve.position.set(0.1, -0.3, 0);
-      rightSleeve.rotation.z = -0.25;
-      rightArm.add(rightSleeve);
-
-      const rightStick = new THREE.Mesh(armStickGeo, blackBodyMat);
-      rightStick.position.set(0.16, -0.55, 0);
-      rightStick.rotation.z = -0.25;
-      rightArm.add(rightStick);
-
-      const rightHand = new THREE.Mesh(handGeo, blackBodyMat);
-      rightHand.position.set(0.24, -0.82, 0);
-      rightArm.add(rightHand);
-
-      // Diploma scroll
-      let diplomaGroup: THREE.Group | undefined;
-      if (hasDiploma) {
-        diplomaGroup = new THREE.Group();
-        diplomaGroup.position.set(0.24, -0.82, 0.08);
-        diplomaGroup.rotation.z = isCenter ? -0.85 : -0.45;
-        diplomaGroup.rotation.x = 0.3;
-
-        // White rolled parchment
-        const dipGeo = new THREE.CylinderGeometry(0.052, 0.052, 0.54, 16);
-        const dipMesh = new THREE.Mesh(dipGeo, diplomaMat);
-        diplomaGroup.add(dipMesh);
-
-        // Red ribbon band in center
-        const ribGeo = new THREE.CylinderGeometry(0.056, 0.056, 0.12, 16);
-        const ribMesh = new THREE.Mesh(ribGeo, ribbonMat);
-        diplomaGroup.add(ribMesh);
-
-        // Ribbon bow / knot
-        const bowEndGeo = new THREE.BoxGeometry(0.02, 0.14, 0.06);
-        const bowEnd1 = new THREE.Mesh(bowEndGeo, ribbonMat);
-        bowEnd1.position.set(0.05, -0.06, 0.03);
-        bowEnd1.rotation.z = -0.35;
-        diplomaGroup.add(bowEnd1);
-
-        const bowEnd2 = new THREE.Mesh(bowEndGeo, ribbonMat);
-        bowEnd2.position.set(-0.04, -0.07, 0.03);
-        bowEnd2.rotation.z = 0.35;
-        diplomaGroup.add(bowEnd2);
-
-        rightArm.add(diplomaGroup);
-      }
-
-      root.add(rightArm);
-
-      // 5. Mortarboard Graduation Cap (Detachable with 3D flight physics)
-      const capGroup = new THREE.Group();
-      capGroup.position.set(0, 2.45, 0);
-
-      // Skullcap Base
-      const skullGeo = new THREE.CylinderGeometry(0.23, 0.27, 0.16, 24);
-      const skullMesh = new THREE.Mesh(skullGeo, capMat);
-      capGroup.add(skullMesh);
-
-      // Flat Square Diamond Board
-      const boardGeo = new THREE.BoxGeometry(0.92, 0.034, 0.92);
-      const boardMesh = new THREE.Mesh(boardGeo, capMat);
-      boardMesh.position.set(0, 0.09, 0);
-      boardMesh.rotation.y = Math.PI / 4; // Diamond top
-      capGroup.add(boardMesh);
-
-      // Center button
-      const buttonGeo = new THREE.CylinderGeometry(0.042, 0.042, 0.038, 12);
-      const buttonMesh = new THREE.Mesh(buttonGeo, tasselMat);
-      buttonMesh.position.set(0, 0.115, 0);
-      capGroup.add(buttonMesh);
-
-      // Tassel cord & hanging brush (hanging to right side)
-      const cordGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.33, 8);
-      const cordMesh = new THREE.Mesh(cordGeo, tasselMat);
-      cordMesh.position.set(0.18, 0.08, 0.14);
-      cordMesh.rotation.z = -1.1;
-      cordMesh.rotation.y = 0.4;
-      capGroup.add(cordMesh);
-
-      const brushGeo = new THREE.CylinderGeometry(0.024, 0.042, 0.19, 12);
-      const brushMesh = new THREE.Mesh(brushGeo, tasselMat);
-      brushMesh.position.set(0.35, -0.06, 0.2);
-      capGroup.add(brushMesh);
-
-      root.add(capGroup);
-
-      scene.add(root);
-
-      const capPhysics: CapPhysics = {
-        group: capGroup,
-        initialPos: capGroup.position.clone(),
-        initialRot: capGroup.rotation.clone(),
-        vel: new THREE.Vector3(),
-        rotVel: new THREE.Vector3(),
-        isFlying: false,
-        tossTime: 0,
-      };
-
-      return {
-        root,
-        leftArm,
-        rightArm,
-        diploma: diplomaGroup,
-        capPhysics,
-        baseY: root.position.y,
-        bobPhase,
-        isCenter,
-      };
+      return shoeG;
     };
 
-    // Instantiate 5 Stickmen Cohort (Matching 3D Reference Images)
-    // Symmetrical proud stage presence with depth arc
-    stickmen.push(
-      // Center Graduate (Proud leader with diploma raised)
-      createStickman(0, 0.12, 1.06, 0, true, true, 0),
-      // Inner Left
-      createStickman(-1.46, 0.26, 0.99, 0.14, true, false, 1.2),
-      // Inner Right
-      createStickman(1.46, 0.26, 0.99, -0.14, true, false, 2.4),
-      // Outer Left
-      createStickman(-2.85, 0.68, 0.93, 0.3, false, false, 3.6),
-      // Outer Right
-      createStickman(2.85, 0.68, 0.93, -0.3, false, false, 4.8)
+    const leftShoe = createShoe(-0.22);
+    const rightShoe = createShoe(0.22);
+    legsGroup.add(leftShoe);
+    legsGroup.add(rightShoe);
+
+    // Legs: smooth stick cylinders with ankle & knee joints
+    const legStickGeo = new THREE.CylinderGeometry(0.052, 0.052, 0.92, 24);
+
+    const leftLeg = new THREE.Mesh(legStickGeo, blackSkinMat);
+    leftLeg.position.set(-0.22, 0.48, 0);
+    legsGroup.add(leftLeg);
+
+    const rightLeg = new THREE.Mesh(legStickGeo, blackSkinMat);
+    rightLeg.position.set(0.22, 0.48, 0);
+    legsGroup.add(rightLeg);
+
+    stickmanRoot.add(legsGroup);
+
+    // 3. Pleated Academic Gown / Robe (Realistic Cloth Folds & Flare)
+    // Custom parametric fluted geometry for authentic fabric drape
+    const gownHeight = 1.45;
+    const gownRadiusTop = 0.28;
+    const gownRadiusBottom = 0.62;
+    const gownSegmentsRad = 48;
+    const gownSegmentsHeight = 32;
+
+    const gownGeo = new THREE.CylinderGeometry(
+      gownRadiusTop,
+      gownRadiusBottom,
+      gownHeight,
+      gownSegmentsRad,
+      gownSegmentsHeight,
+      true
     );
 
-    // --- 3D Cap Toss Action ---
+    // Displace vertices to create rich vertical pleats/flutes running down the gown
+    const posAttr = gownGeo.attributes.position;
+    for (let i = 0; i < posAttr.count; i++) {
+      const y = posAttr.getY(i);
+      const x = posAttr.getX(i);
+      const z = posAttr.getZ(i);
+
+      const angle = Math.atan2(z, x);
+      const currentRadius = Math.sqrt(x * x + z * z);
+
+      // Deepen folds towards the bottom hem
+      const normalizedHeight = (y + gownHeight / 2) / gownHeight; // 0 at bottom, 1 at top
+      const pleatFactor = (1 - normalizedHeight * 0.75);
+      // 14 vertical flutes around the gown
+      const foldWave = Math.sin(angle * 14) * 0.038 * pleatFactor;
+
+      const newRadius = currentRadius + foldWave;
+      posAttr.setX(i, Math.cos(angle) * newRadius);
+      posAttr.setZ(i, Math.sin(angle) * newRadius);
+    }
+    gownGeo.computeVertexNormals();
+
+    const gownMesh = new THREE.Mesh(gownGeo, gownMat);
+    gownMesh.position.set(0, 1.46, 0);
+    stickmanRoot.add(gownMesh);
+
+    // Front Vertical Placket / Zipper Band
+    const placketGeo = new THREE.BoxGeometry(0.07, gownHeight * 0.98, 0.03);
+    const placketMesh = new THREE.Mesh(placketGeo, gownTrimMat);
+    placketMesh.position.set(0, 1.46, 0.38);
+    stickmanRoot.add(placketMesh);
+
+    // Gown Collar V-band
+    const collarGeo = new THREE.TorusGeometry(0.25, 0.04, 16, 32, Math.PI);
+    const collarMesh = new THREE.Mesh(collarGeo, gownTrimMat);
+    collarMesh.rotation.x = Math.PI / 2.3;
+    collarMesh.position.set(0, 2.14, 0.04);
+    stickmanRoot.add(collarMesh);
+
+    // 4. Mannequin Torso, Neck & Spherical Head
+    const neckGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.28, 24);
+    const neck = new THREE.Mesh(neckGeo, blackSkinMat);
+    neck.position.set(0, 2.22, 0);
+    stickmanRoot.add(neck);
+
+    // Perfect obsidian black sphere head
+    const headGeo = new THREE.SphereGeometry(0.42, 64, 48);
+    const head = new THREE.Mesh(headGeo, blackSkinMat);
+    head.position.set(0, 2.58, 0);
+    stickmanRoot.add(head);
+
+    // 5. Flowing Bell Sleeves & Articulated Arms
+    // Left Arm Group (relaxed confident pose)
+    const leftArmGroup = new THREE.Group();
+    leftArmGroup.position.set(-0.36, 2.05, 0);
+
+    // Flared Draped Bell Sleeve
+    const sleeveGeo = new THREE.CylinderGeometry(0.12, 0.28, 0.85, 24);
+    const leftSleeve = new THREE.Mesh(sleeveGeo, gownMat);
+    leftSleeve.position.set(-0.16, -0.38, 0);
+    leftSleeve.rotation.z = 0.35;
+    leftArmGroup.add(leftSleeve);
+
+    // Stick Arm with elbow & hand joint
+    const armGeo = new THREE.CylinderGeometry(0.046, 0.046, 0.68, 16);
+    const leftArmStick = new THREE.Mesh(armGeo, blackSkinMat);
+    leftArmStick.position.set(-0.25, -0.7, 0);
+    leftArmStick.rotation.z = 0.35;
+    leftArmGroup.add(leftArmStick);
+
+    const handGeo = new THREE.SphereGeometry(0.085, 24, 24);
+    const leftHand = new THREE.Mesh(handGeo, blackSkinMat);
+    leftHand.position.set(-0.36, -1.02, 0);
+    leftArmGroup.add(leftHand);
+
+    stickmanRoot.add(leftArmGroup);
+
+    // Right Arm Group (holding the diploma proudly up)
+    const rightArmGroup = new THREE.Group();
+    rightArmGroup.position.set(0.36, 2.05, 0);
+
+    const rightSleeve = new THREE.Mesh(sleeveGeo, gownMat);
+    rightSleeve.position.set(0.16, -0.38, 0);
+    rightSleeve.rotation.z = -0.35;
+    rightArmGroup.add(rightSleeve);
+
+    const rightArmStick = new THREE.Mesh(armGeo, blackSkinMat);
+    rightArmStick.position.set(0.25, -0.7, 0);
+    rightArmStick.rotation.z = -0.35;
+    rightArmGroup.add(rightArmStick);
+
+    const rightHand = new THREE.Mesh(handGeo, blackSkinMat);
+    rightHand.position.set(0.36, -1.02, 0);
+    rightArmGroup.add(rightHand);
+
+    // Realistic Diploma Scroll in Right Hand
+    const diplomaGroup = new THREE.Group();
+    diplomaGroup.position.set(0.36, -1.02, 0.12);
+    diplomaGroup.rotation.z = -0.65;
+    diplomaGroup.rotation.x = 0.45;
+
+    // Rolled parchment cylinder with curled edge
+    const dipParchmentGeo = new THREE.CylinderGeometry(0.065, 0.065, 0.72, 32);
+    const dipParchment = new THREE.Mesh(dipParchmentGeo, diplomaMat);
+    diplomaGroup.add(dipParchment);
+
+    // Rolled inner hollow spirals at ends
+    const endGeo = new THREE.RingGeometry(0.015, 0.064, 24);
+    const topEnd = new THREE.Mesh(endGeo, gownTrimMat);
+    topEnd.rotation.x = -Math.PI / 2;
+    topEnd.position.set(0, 0.361, 0);
+    diplomaGroup.add(topEnd);
+
+    const bottomEnd = new THREE.Mesh(endGeo, gownTrimMat);
+    bottomEnd.rotation.x = Math.PI / 2;
+    bottomEnd.position.set(0, -0.361, 0);
+    diplomaGroup.add(bottomEnd);
+
+    // Crimson red ribbon wrapped around middle
+    const ribBandGeo = new THREE.CylinderGeometry(0.071, 0.071, 0.16, 32);
+    const ribBand = new THREE.Mesh(ribBandGeo, ribbonMat);
+    diplomaGroup.add(ribBand);
+
+    // Ribbon bow loops
+    const bowLoopGeo = new THREE.TorusGeometry(0.05, 0.018, 16, 24);
+    const bowLoop1 = new THREE.Mesh(bowLoopGeo, ribbonMat);
+    bowLoop1.position.set(0.07, 0.02, 0.04);
+    bowLoop1.rotation.y = 0.8;
+    diplomaGroup.add(bowLoop1);
+
+    const bowLoop2 = new THREE.Mesh(bowLoopGeo, ribbonMat);
+    bowLoop2.position.set(-0.06, 0.02, 0.04);
+    bowLoop2.rotation.y = -0.8;
+    diplomaGroup.add(bowLoop2);
+
+    // Ribbon tails
+    const ribbonTailGeo = new THREE.BoxGeometry(0.028, 0.18, 0.08);
+    const ribTail1 = new THREE.Mesh(ribbonTailGeo, ribbonMat);
+    ribTail1.position.set(0.05, -0.1, 0.06);
+    ribTail1.rotation.z = -0.35;
+    diplomaGroup.add(ribTail1);
+
+    const ribTail2 = new THREE.Mesh(ribbonTailGeo, ribbonMat);
+    ribTail2.position.set(-0.04, -0.11, 0.06);
+    ribTail2.rotation.z = 0.35;
+    diplomaGroup.add(ribTail2);
+
+    rightArmGroup.add(diplomaGroup);
+    stickmanRoot.add(rightArmGroup);
+
+    // 6. High-Detail Mortarboard Cap (Detachable for 3D Toss Physics)
+    const capGroup = new THREE.Group();
+    // Centered atop the head
+    capGroup.position.set(0, 2.9, 0);
+
+    // Skullcap crown (fits smoothly over head)
+    const capSkullGeo = new THREE.CylinderGeometry(0.3, 0.35, 0.22, 32);
+    const capSkull = new THREE.Mesh(capSkullGeo, capMat);
+    capSkull.position.set(0, -0.06, 0);
+    capGroup.add(capSkull);
+
+    // Main Square Board with beveled edge and fabric thickness
+    const boardGeo = new THREE.BoxGeometry(1.28, 0.048, 1.28);
+    const board = new THREE.Mesh(boardGeo, capMat);
+    board.position.set(0, 0.08, 0);
+    board.rotation.y = Math.PI / 4; // Diamond graduation cap rotation
+    capGroup.add(board);
+
+    // Center Dome Button
+    const capBtnGeo = new THREE.SphereGeometry(0.055, 24, 16);
+    capBtnGeo.scale(1, 0.5, 1);
+    const capButton = new THREE.Mesh(capBtnGeo, capMat);
+    capButton.position.set(0, 0.11, 0);
+    capGroup.add(capButton);
+
+    // Tassel assembly
+    const tasselGroup = new THREE.Group();
+
+    // Cord running from button to the right edge
+    const cordCurve = new THREE.CubicBezierCurve3(
+      new THREE.Vector3(0, 0.11, 0),
+      new THREE.Vector3(0.22, 0.12, 0.15),
+      new THREE.Vector3(0.42, 0.08, 0.28),
+      new THREE.Vector3(0.48, 0.02, 0.32)
+    );
+    const cordGeo = new THREE.TubeGeometry(cordCurve, 20, 0.015, 8, false);
+    const cordMesh = new THREE.Mesh(cordGeo, tasselMat);
+    tasselGroup.add(cordMesh);
+
+    // Gold ferrule band
+    const ferruleGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.05, 16);
+    const ferruleMesh = new THREE.Mesh(ferruleGeo, tasselGoldBand);
+    ferruleMesh.position.set(0.48, -0.04, 0.32);
+    tasselGroup.add(ferruleMesh);
+
+    // Hanging tassel brush (threads)
+    const brushGeo = new THREE.CylinderGeometry(0.032, 0.06, 0.26, 24);
+    const brushMesh = new THREE.Mesh(brushGeo, tasselMat);
+    brushMesh.position.set(0.48, -0.18, 0.32);
+    tasselGroup.add(brushMesh);
+
+    capGroup.add(tasselGroup);
+    stickmanRoot.add(capGroup);
+
+    // --- Cap Physics & Toss State ---
+    const initialCapPos = capGroup.position.clone();
+    const initialCapRot = capGroup.rotation.clone();
+
+    const capVel = new THREE.Vector3();
+    const capRotVel = new THREE.Vector3();
+    let isCapFlying = false;
+
+    // --- Execute 3D Cap Toss ---
     const executeToss = () => {
       isTossedRef.current = true;
+      isCapFlying = true;
 
-      stickmen.forEach((sm, index) => {
-        const cp = sm.capPhysics;
-        cp.isFlying = true;
-        cp.tossTime = 0;
+      // Launch velocity: High vertical shoot with slight forward-spin
+      capVel.set(
+        (Math.random() - 0.5) * 0.4,
+        6.8, // High explosive toss
+        0.3
+      );
 
-        // Upward impulse
-        const upwardSpeed = 5.2 + Math.random() * 1.8 + (sm.isCenter ? 0.7 : 0);
-        // Outward fan spread
-        const spreadX = sm.root.position.x * 0.38 + (Math.random() - 0.5) * 0.3;
-        const spreadZ = (Math.random() - 0.4) * 0.5;
-
-        cp.vel.set(spreadX, upwardSpeed, spreadZ);
-
-        // 3D rotations (Pitch, Yaw, Roll)
-        cp.rotVel.set(
-          (Math.random() - 0.5) * 12,
-          (Math.random() - 0.5) * 16 + (index % 2 === 0 ? 8 : -8),
-          (Math.random() - 0.5) * 10
-        );
-      });
+      // Rapid 3D tumble (pitch, yaw, roll)
+      capRotVel.set(
+        Math.PI * 5.5,
+        Math.PI * 7.0,
+        Math.PI * 4.2
+      );
 
       if (onToss) {
         onToss();
       }
 
-      // Allow caps to settle and reset celebration pose after flight duration
+      // After flight loop, smoothly settle and reset pose
       setTimeout(() => {
         isTossedRef.current = false;
-      }, 2400);
+      }, 2600);
     };
 
     tossCapsRef.current = executeToss;
 
-    // --- Mouse Parallax ---
-    let targetCamX = 0;
-    let targetCamY = 0.9;
+    // --- Interactive Mouse Parallax (3D Orbit Response) ---
+    let targetRotY = 0;
+    let targetRotX = 0;
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
       const y = (e.clientY - rect.top) / rect.height - 0.5;
-      targetCamX = x * 1.5;
-      targetCamY = 0.9 - y * 0.8;
+      targetRotY = x * 0.7; // Smooth 3D spin on Y
+      targetRotX = y * 0.35; // Slight tilt
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -401,91 +472,81 @@ export const StickmenGraduates3D: React.FC<StickmenGraduates3DProps> = ({
     let animId: number;
     let lastTime = performance.now();
 
-    const animate = (currentTime: number) => {
+    const animate = (time: number) => {
       animId = requestAnimationFrame(animate);
-      const dt = Math.min((currentTime - lastTime) / 1000, 0.05);
-      lastTime = currentTime;
+      const dt = Math.min((time - lastTime) / 1000, 0.05);
+      lastTime = time;
 
-      // Smooth camera parallax
-      camera.position.x += (targetCamX - camera.position.x) * 0.06;
-      camera.position.y += (targetCamY - camera.position.y) * 0.06;
-      camera.lookAt(0, 0.4, 0);
+      // Smooth Stickman rotation tracking mouse for 3D inspection
+      stickmanRoot.rotation.y += (targetRotY - stickmanRoot.rotation.y) * 0.08;
+      stickmanRoot.rotation.x += (targetRotX - stickmanRoot.rotation.x) * 0.08;
 
-      // Animate Stickmen
-      stickmen.forEach((sm) => {
-        const t = currentTime * 0.002 + sm.bobPhase;
+      const t = time * 0.0025;
 
-        // Breathing bob when grounded
-        if (!isTossedRef.current) {
-          sm.root.position.y = sm.baseY + Math.sin(t) * 0.022;
+      // Stickman Body Animation
+      if (isTossedRef.current) {
+        // Celebratory jump & arms thrust into the air \o/
+        stickmanRoot.position.y += (-1.15 - stickmanRoot.position.y) * 0.14; // slight jump up
+
+        // Arms thrown high in triumph
+        leftArmGroup.rotation.z += (2.55 - leftArmGroup.rotation.z) * 0.2;
+        leftArmGroup.rotation.x += (0.55 - leftArmGroup.rotation.x) * 0.2;
+
+        rightArmGroup.rotation.z += (-2.55 - rightArmGroup.rotation.z) * 0.2;
+        rightArmGroup.rotation.x += (0.55 - rightArmGroup.rotation.x) * 0.2;
+
+        // Diploma pumped high above head!
+        diplomaGroup.rotation.z += (1.25 - diplomaGroup.rotation.z) * 0.2;
+        diplomaGroup.rotation.x += (0.2 - diplomaGroup.rotation.x) * 0.2;
+      } else {
+        // Organic idle breathing & gentle sway
+        const idleY = -1.3 + Math.sin(t) * 0.025;
+        stickmanRoot.position.y += (idleY - stickmanRoot.position.y) * 0.08;
+
+        // Relaxed proud posture
+        const idleArmZ = 0.12 + Math.sin(t) * 0.04;
+        leftArmGroup.rotation.z += (idleArmZ - leftArmGroup.rotation.z) * 0.08;
+        leftArmGroup.rotation.x += (0 - leftArmGroup.rotation.x) * 0.08;
+
+        rightArmGroup.rotation.z += (-idleArmZ - rightArmGroup.rotation.z) * 0.08;
+        rightArmGroup.rotation.x += (0 - rightArmGroup.rotation.x) * 0.08;
+
+        diplomaGroup.rotation.z += (-0.65 - diplomaGroup.rotation.z) * 0.08;
+        diplomaGroup.rotation.x += (0.45 - diplomaGroup.rotation.x) * 0.08;
+      }
+
+      // Cap Physics (3D Upward Shoot, Arc, and Smooth Catch/Landing)
+      if (isCapFlying) {
+        // Gravity deceleration
+        capVel.y -= 8.4 * dt;
+
+        // Position update
+        capGroup.position.x += capVel.x * dt;
+        capGroup.position.y += capVel.y * dt;
+        capGroup.position.z += capVel.z * dt;
+
+        // 3D rotations
+        capGroup.rotation.x += capRotVel.x * dt;
+        capGroup.rotation.y += capRotVel.y * dt;
+        capGroup.rotation.z += capRotVel.z * dt;
+
+        // Tassel swing lag
+        tasselGroup.rotation.z = Math.sin(time * 0.01) * 0.4;
+
+        // Landing condition
+        if (capVel.y < 0 && capGroup.position.y <= initialCapPos.y) {
+          isCapFlying = false;
+          capGroup.position.copy(initialCapPos);
+          capGroup.rotation.copy(initialCapRot);
+          tasselGroup.rotation.set(0, 0, 0);
         }
-
-        // Arm posture transition
-        if (isTossedRef.current) {
-          // Celebratory raised arms \o/
-          const victoryLeftZ = 2.45;
-          const victoryRightZ = -2.45;
-          const victoryX = 0.45;
-
-          sm.leftArm.rotation.z += (victoryLeftZ - sm.leftArm.rotation.z) * 0.18;
-          sm.leftArm.rotation.x += (victoryX - sm.leftArm.rotation.x) * 0.18;
-
-          sm.rightArm.rotation.z += (victoryRightZ - sm.rightArm.rotation.z) * 0.18;
-          sm.rightArm.rotation.x += (victoryX - sm.rightArm.rotation.x) * 0.18;
-
-          // Diploma pump
-          if (sm.diploma) {
-            sm.diploma.rotation.z += (1.1 - sm.diploma.rotation.z) * 0.18;
-          }
-        } else {
-          // Standing pose
-          const idleLeftZ = 0.14 + Math.sin(t) * 0.035;
-          const idleRightZ = -0.14 - Math.sin(t) * 0.035;
-
-          sm.leftArm.rotation.z += (idleLeftZ - sm.leftArm.rotation.z) * 0.08;
-          sm.leftArm.rotation.x += (0 - sm.leftArm.rotation.x) * 0.08;
-
-          sm.rightArm.rotation.z += (idleRightZ - sm.rightArm.rotation.z) * 0.08;
-          sm.rightArm.rotation.x += (0 - sm.rightArm.rotation.x) * 0.08;
-
-          if (sm.diploma) {
-            const baseDipZ = sm.isCenter ? -0.85 : -0.45;
-            sm.diploma.rotation.z += (baseDipZ - sm.diploma.rotation.z) * 0.08;
-          }
-        }
-
-        // Cap Physics update
-        const cp = sm.capPhysics;
-        if (cp.isFlying) {
-          cp.tossTime += dt;
-
-          // Apply Gravity
-          cp.vel.y -= 7.8 * dt;
-
-          // Position step
-          cp.group.position.x += cp.vel.x * dt;
-          cp.group.position.y += cp.vel.y * dt;
-          cp.group.position.z += cp.vel.z * dt;
-
-          // 3D rotation step
-          cp.group.rotation.x += cp.rotVel.x * dt;
-          cp.group.rotation.y += cp.rotVel.y * dt;
-          cp.group.rotation.z += cp.rotVel.z * dt;
-
-          // Gentle landing back on head
-          if (cp.vel.y < 0 && cp.group.position.y <= cp.initialPos.y) {
-            cp.isFlying = false;
-            cp.group.position.copy(cp.initialPos);
-            cp.group.rotation.copy(cp.initialRot);
-          }
-        } else {
-          // Snug return to head
-          cp.group.position.lerp(cp.initialPos, 0.14);
-          cp.group.rotation.x += (cp.initialRot.x - cp.group.rotation.x) * 0.14;
-          cp.group.rotation.y += (cp.initialRot.y - cp.group.rotation.y) * 0.14;
-          cp.group.rotation.z += (cp.initialRot.z - cp.group.rotation.z) * 0.14;
-        }
-      });
+      } else {
+        // Firmly resting on head
+        capGroup.position.lerp(initialCapPos, 0.15);
+        capGroup.rotation.x += (initialCapRot.x - capGroup.rotation.x) * 0.15;
+        capGroup.rotation.y += (initialCapRot.y - capGroup.rotation.y) * 0.15;
+        capGroup.rotation.z += (initialCapRot.z - capGroup.rotation.z) * 0.15;
+      }
 
       renderer.render(scene, camera);
     };
@@ -516,7 +577,7 @@ export const StickmenGraduates3D: React.FC<StickmenGraduates3DProps> = ({
     };
   }, [onToss]);
 
-  // React to triggerToss prop
+  // Handle external trigger from "Построить маршрут"
   useEffect(() => {
     if (triggerToss) {
       tossCapsRef.current();
@@ -531,8 +592,9 @@ export const StickmenGraduates3D: React.FC<StickmenGraduates3DProps> = ({
     <div
       ref={containerRef}
       onClick={handleClick}
-      className="w-full h-[380px] sm:h-[440px] lg:h-[480px] relative cursor-pointer select-none overflow-visible"
+      className="w-full h-[400px] sm:h-[480px] lg:h-[520px] relative cursor-pointer select-none overflow-visible"
       style={{ touchAction: 'none' }}
+      title="Нажмите, чтобы подбросить колпак в 3D"
     />
   );
 };
