@@ -7,9 +7,11 @@ import {
   Compass,
   CheckCircle2,
   UserPlus,
-  Sparkles,
   FileText,
   MessageCircle,
+  Award,
+  MailCheck,
+  Zap,
 } from 'lucide-react';
 import { UserAccount } from '../lib/firebase';
 import { HeroVisual } from './ui/HeroVisual';
@@ -21,12 +23,42 @@ interface Step1LandingProps {
 }
 
 const FEATURES = [
-  { icon: BarChart3, title: 'Академический скоринг', text: 'GPA, IELTS, SAT, ЕНТ и олимпиады сопоставляются с порогами приемных комиссий. Вы получаете индекс готовности, а не «список вузов из интернета».', color: 'blue' },
-  { icon: ShieldCheck, title: 'Аудит 100% грантов', text: 'NU, госгранты МНВО, KAIST KISS, Hungaricum, Bocconi ISU и Need-Blind колледжи США — в одном отборе под ваш бюджет.', color: 'emerald' },
-  { icon: CalendarClock, title: 'Roadmap до зачисления', text: 'Контрольные даты, чек-лист недели, структура эссе и отправка плана на Gmail. Один фокус вместо хаоса дедлайнов.', color: 'indigo' },
-  { icon: FileText, title: 'Гид по мотивационному эссе', text: 'Четыре блока Personal Statement, чек-лист ошибок и копируемый каркас под NU и зарубежные вузы.', color: 'violet' },
-  { icon: Compass, title: 'Шансы поступления', text: 'По каждому вузу — статус High / Medium / Boost Needed и понятное обоснование, почему профиль подходит.', color: 'amber' },
-  { icon: MessageCircle, title: 'Бесплатный AI-консультант', text: 'Чат по грантам, тестам и эссе. Подключается к Gemini API или работает в офлайн-режиме подсказок.', color: 'sky' },
+  { 
+    icon: BarChart3, 
+    title: 'Академический скоринг', 
+    text: 'GPA, IELTS, SAT, ЕНТ и олимпиады сопоставляются с порогами комиссий. Вы получаете точный индекс готовности, а не случайный каталог вузов.', 
+    color: 'blue' 
+  },
+  { 
+    icon: ShieldCheck, 
+    title: 'Аудит 100% грантов', 
+    text: 'NU, госгранты МНВО, KAIST KISS, Stipendium Hungaricum, Bocconi ISU и Need-Blind колледжи США — в едином фильтре под бюджет вашей семьи.', 
+    color: 'emerald' 
+  },
+  { 
+    icon: CalendarClock, 
+    title: 'Roadmap до зачисления', 
+    text: 'Контрольные даты, конкретный чек-лист недели, структура эссе и дедлайны. Фокусируйтесь на главном действии вместо стресса.', 
+    color: 'indigo' 
+  },
+  { 
+    icon: FileText, 
+    title: 'Гид по мотивационному эссе', 
+    text: 'Четыре ключевых блока Personal Statement, чек-лист типичных ошибок и готовый каркас под NU и ведущие зарубежные вузы.', 
+    color: 'violet' 
+  },
+  { 
+    icon: Compass, 
+    title: 'Расчет шансов поступления', 
+    text: 'По каждому вузу — наглядный статус High / Medium / Boost Needed с прозрачным обоснованием, почему этот вариант подходит именно вам.', 
+    color: 'amber' 
+  },
+  { 
+    icon: MailCheck, 
+    title: 'Доставка через Google SMTP', 
+    text: 'План поступления и проверочные коды доставляются напрямую на ваш личный Gmail с официальных почтовых серверов.', 
+    color: 'sky' 
+  },
 ];
 
 export const Step1Landing: React.FC<Step1LandingProps> = ({
@@ -35,117 +67,163 @@ export const Step1Landing: React.FC<Step1LandingProps> = ({
   currentUser,
 }) => {
   return (
-    <div className="space-y-14 sm:space-y-16 py-4 sm:py-6">
-      <section className="relative rounded-[28px] sm:rounded-[32px] bg-slate-950 text-white p-6 sm:p-12 lg:p-16 border border-slate-800 overflow-hidden animate-fadeInUp">
-        <div className="absolute top-[-20%] right-[-10%] w-[700px] h-[700px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-[-30%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/15 rounded-full blur-[100px] pointer-events-none" />
+    <div className="w-full">
+      
+      {/* 
+        HERO SECTION:
+        Full-sheet width (на весь лист), without restrictive border/card frames,
+        with deep atmospheric dark background and ambient light glows.
+      */}
+      <section className="relative w-full bg-slate-950 text-white pt-6 sm:pt-10 pb-16 sm:pb-24 px-4 sm:px-8 lg:px-12 xl:px-20 overflow-hidden">
+        
+        {/* Ambient atmospheric glows */}
+        <div className="absolute top-0 right-1/4 w-[750px] h-[650px] bg-blue-600/15 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute bottom-0 left-10 w-[600px] h-[550px] bg-indigo-600/12 rounded-full blur-[120px] pointer-events-none" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center relative z-10">
-          <div className="lg:col-span-6 space-y-6 sm:space-y-7">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-semibold backdrop-blur-md">
-              <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-              AdmitRoute · навигатор поступления
-            </div>
-
-            <h1 className="text-[2rem] sm:text-5xl lg:text-[3.4rem] font-extrabold tracking-tight leading-[1.08]">
+        {/* Content Container spanning the page */}
+        <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center relative z-10">
+          
+          {/* Left Column: Improved Typography, Messaging, and Actions */}
+          <div className="lg:col-span-6 space-y-6 sm:space-y-8">
+            
+            {/* Main Headline (Improved Typography & Gradient) */}
+            <h1 className="text-3xl sm:text-5xl lg:text-[3.6rem] xl:text-[4.2rem] font-black tracking-tight leading-[1.05] text-white">
               Стратегия зачисления,
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-300">
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-400 mt-1">
                 а не хаос дедлайнов
               </span>
             </h1>
 
-            <p className="text-slate-400 text-sm sm:text-lg leading-relaxed max-w-xl">
-              Оценки, олимпиады и бюджет семьи превращаются в персональный маршрут: куда подавать, какие шансы и что сделать на этой неделе.
+            {/* Improved Subtitle */}
+            <p className="text-slate-300 dark:text-zinc-300 text-base sm:text-lg lg:text-xl leading-relaxed max-w-xl font-normal">
+              Оценки, олимпиады и бюджет семьи за 3 минуты превращаются в выверенный навигатор: <span className="text-white font-semibold">куда поступать на 100% грант</span>, какие реальные шансы и какое действие выполнить на этой неделе.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
+            {/* Primary & Secondary Call to Actions */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
               {currentUser ? (
                 <button
                   type="button"
                   onClick={onStartCustom}
-                  className="group inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl text-sm font-bold bg-white text-slate-900 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(255,255,255,0.18)] transition"
+                  className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl text-sm sm:text-base font-extrabold bg-white text-slate-900 shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_40px_rgba(255,255,255,0.35)] hover:-translate-y-0.5 active:scale-[0.99] transition cursor-pointer"
                 >
-                  Продолжить, {currentUser.firstName}
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition" />
+                  <span>Продолжить, {currentUser.firstName}</span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition" />
                 </button>
               ) : (
                 <>
                   <button
                     type="button"
                     onClick={onOpenAuth}
-                    className="group inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl text-sm font-bold bg-white text-slate-900 hover:-translate-y-0.5 transition"
+                    className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl text-sm sm:text-base font-extrabold bg-white text-slate-900 shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_40px_rgba(255,255,255,0.35)] hover:-translate-y-0.5 active:scale-[0.99] transition cursor-pointer"
                   >
-                    <UserPlus className="w-4 h-4" />
-                    Создать профиль
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition" />
+                    <UserPlus className="w-5 h-5 text-blue-600" />
+                    <span>Построить маршрут</span>
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition" />
                   </button>
+
                   <button
                     type="button"
                     onClick={onStartCustom}
-                    className="inline-flex items-center justify-center px-6 py-3.5 rounded-2xl text-sm font-semibold bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10"
+                    className="inline-flex items-center justify-center px-6 py-4 rounded-2xl text-sm font-bold bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-slate-700/80 transition cursor-pointer shadow-sm"
                   >
-                    Смотреть демо
+                    <span>Смотреть демо-маршрут</span>
                   </button>
                 </>
               )}
             </div>
 
-            <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-500 font-medium">
-              {['Алгоритмический мэтчинг', 'Поиск 100% грантов', 'Roadmap до зачисления'].map((item) => (
-                <div key={item} className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400/80" />
-                  {item}
-                </div>
-              ))}
+            {/* Improved Trust Pillars */}
+            <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>Каталог 100% грантов РК, Азии, Европы, США</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>Алгоритмический аудит шансов поступления</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>Пошаговый Roadmap с дедлайнами и эссе</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>Прямая отправка плана на ваш Gmail</span>
+              </div>
             </div>
+
           </div>
 
-          <div className="lg:col-span-6 hidden sm:block">
+          {/* Right Column: Replaced with Live Admission Cockpit & Grant Terminal */}
+          <div className="lg:col-span-6 w-full">
             <HeroVisual />
           </div>
-        </div>
-      </section>
 
-      <section className="space-y-6">
-        <div>
-          <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-1">Возможности платформы</p>
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Почему AdmitRoute выглядит как продукт, а не лендинг</h2>
-          <p className="text-sm text-slate-500 dark:text-zinc-400 mt-2 max-w-2xl">Единое окно: диагностика профиля, шансы, план действий и инструменты подачи.</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-          {FEATURES.map((f, i) => {
-            const Icon = f.icon;
-            return (
-              <article
-                key={f.title}
-                className="ar-card p-6 hover:-translate-y-1 hover:shadow-lg transition duration-300 group"
-                style={{ animationDelay: `${i * 40}ms` }}
-              >
-                <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center mb-3 group-hover:bg-blue-50 dark:group-hover:bg-blue-950/40 transition">
-                  <Icon className="w-5 h-5 text-slate-700 dark:text-zinc-200 group-hover:text-blue-600" />
-                </div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1.5">{f.title}</h3>
-                <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">{f.text}</p>
-              </article>
-            );
-          })}
-        </div>
       </section>
 
-      <section className="ar-card p-6 sm:p-10 flex flex-col sm:flex-row items-center justify-between gap-6">
-        <div>
-          <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">Готовы собрать маршрут за 8 минут?</h3>
-          <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1">Имя, фамилия, Gmail — дальше код из письма и анкета абитуриента.</p>
-        </div>
-        <button
-          type="button"
-          onClick={currentUser ? onStartCustom : onOpenAuth}
-          className="ar-btn ar-btn-primary shrink-0 px-6 py-3"
-        >
-          {currentUser ? 'К анкете профиля' : 'Зарегистрироваться'}
-        </button>
-      </section>
+      {/* 
+        SECONDARY SECTIONS:
+        Structured features and callout below the hero
+      */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 space-y-16">
+        
+        {/* Features Grid */}
+        <section className="space-y-8">
+          <div>
+            <p className="text-xs font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1.5">
+              Возможности платформы
+            </p>
+            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              Единый навигатор поступления вместо хаоса
+            </h2>
+            <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 mt-2 max-w-2xl">
+              Диагностика профиля, персональные шансы на грант, пошаговый план и помощь в написании эссе в одной системе.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            {FEATURES.map((f) => {
+              const Icon = f.icon;
+              return (
+                <article
+                  key={f.title}
+                  className="ar-card p-6 sm:p-7 hover:-translate-y-1 hover:shadow-xl transition duration-300 group rounded-3xl"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-zinc-800/80 flex items-center justify-center mb-4 group-hover:bg-blue-50 dark:group-hover:bg-blue-950/40 transition">
+                    <Icon className="w-6 h-6 text-slate-700 dark:text-zinc-200 group-hover:text-blue-600 transition" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{f.title}</h3>
+                  <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">{f.text}</p>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Bottom CTA Card */}
+        <section className="ar-card p-8 sm:p-12 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-6 bg-gradient-to-r from-slate-900 via-slate-950 to-blue-950 text-white border border-slate-800 shadow-2xl">
+          <div>
+            <h3 className="text-xl sm:text-2xl font-black text-white">
+              Готовы построить свой персональный маршрут?
+            </h3>
+            <p className="text-sm sm:text-base text-slate-300 mt-1.5 max-w-xl">
+              Укажите текущие оценки, целевые страны и бюджет — AdmitRoute сформирует выверенную стратегию зачисления.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={currentUser ? onStartCustom : onOpenAuth}
+            className="shrink-0 px-8 py-4 rounded-2xl bg-white text-slate-950 font-extrabold text-sm hover:bg-slate-100 hover:shadow-xl transition cursor-pointer"
+          >
+            {currentUser ? 'Перейти к анкете →' : 'Зарегистрироваться →'}
+          </button>
+        </section>
+
+      </div>
+
     </div>
   );
 };

@@ -204,15 +204,17 @@ export function App() {
         onOpenEmailModal={() => setIsEmailModalOpen(true)}
       />
 
-      {/* Stepper (Stages 1-7) */}
-      <Stepper
-        currentStep={currentStep}
-        onStepClick={goToStep}
-        maxReachedStep={maxReachedStep}
-      />
+      {/* Stepper (Stages 1-7) — Hidden on Step 1 (Landing) as requested */}
+      {currentStep > 1 && (
+        <Stepper
+          currentStep={currentStep}
+          onStepClick={goToStep}
+          maxReachedStep={maxReachedStep}
+        />
+      )}
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className={`flex-1 w-full ${currentStep === 1 ? '' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8'}`}>
         
         {/* Step 1: Landing */}
         {currentStep === 1 && (
