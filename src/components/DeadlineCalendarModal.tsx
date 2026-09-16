@@ -97,8 +97,8 @@ export const DeadlineCalendarModal: React.FC<DeadlineCalendarModalProps> = ({
 
         {/* Filters */}
         <div className="px-6 py-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-white">
-          <div className="flex items-center gap-1 text-xs">
-            <Filter className="w-3.5 h-3.5 text-slate-400 mr-1" />
+          <div className="flex overflow-x-auto gap-1 text-xs whitespace-nowrap hide-scrollbar pb-1 sm:pb-0 items-center max-w-full">
+            <Filter className="w-3.5 h-3.5 text-slate-400 mr-1 shrink-0" />
             {[
               { id: 'all', label: 'Все юрисдикции' },
               { id: 'kazakhstan', label: 'Казахстан' },
@@ -109,7 +109,7 @@ export const DeadlineCalendarModal: React.FC<DeadlineCalendarModalProps> = ({
               <button
                 key={r.id}
                 onClick={() => setSelectedRegion(r.id)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition shrink-0
                   ${selectedRegion === r.id ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
               >
                 {r.label}

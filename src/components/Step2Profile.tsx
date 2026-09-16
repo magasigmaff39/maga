@@ -27,6 +27,19 @@ import {
   BudgetTier, 
   AdvisorTone 
 } from '../types';
+import { UNIVERSITY_DATABASE } from '../data/universities';
+
+const EXTRA_CHIPS = [
+  { id: 'olympiad', label: 'Олимпиады' },
+  { id: 'hackathon', label: 'Хакатоны' },
+  { id: 'research', label: 'Исследования' },
+  { id: 'volunteer', label: 'Волонтёрство' },
+  { id: 'startup', label: 'Стартап / клуб' },
+  { id: 'debate', label: 'Дебаты / MUN' },
+  { id: 'sport', label: 'Спорт' },
+  { id: 'media', label: 'Медиа / дизайн' },
+  { id: 'internship', label: 'Стажировка' },
+];
 
 interface Step2ProfileProps {
   profile: ApplicantProfile;
@@ -80,6 +93,23 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
     }
   };
 
+  const toggleExtra = (id: string) => {
+    const current = profile.extracurriculars || [];
+    updateField(
+      'extracurriculars',
+      current.includes(id) ? current.filter((x) => x !== id) : [...current, id]
+    );
+  };
+
+  const toggleUniversity = (id: string) => {
+    const current = profile.targetUniversityIds || [];
+    if (current.includes(id)) {
+      updateField('targetUniversityIds', current.filter((x) => x !== id));
+    } else {
+      updateField('targetUniversityIds', [...current, id]);
+    }
+  };
+
   const toggleRegion = (regionId: TargetRegion) => {
     const current = profile.targetRegions;
     if (current.includes(regionId)) {
@@ -92,7 +122,7 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
   };
 
   return (
-    <div className="space-y-8 py-4">
+    <div className="space-y-8 py-4 text-slate-900 dark:text-zinc-100">
       
       {/* Step Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
@@ -109,22 +139,22 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
         </div>
 
         {/* Tab switchers */}
-        <div className="flex p-1 bg-slate-100 rounded-xl border border-slate-200 self-start sm:self-auto text-xs font-medium">
+        <div className="flex p-1 bg-slate-100 dark:bg-zinc-800 rounded-xl border border-slate-200 dark:border-zinc-700 self-start sm:self-auto text-xs font-medium overflow-x-auto max-w-full">
           <button
             onClick={() => setActiveTab('basics')}
-            className={`px-3 py-1.5 rounded-lg transition ${activeTab === 'basics' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'}`}
+            className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition ${activeTab === 'basics' ? 'bg-white dark:bg-zinc-950 text-slate-900 dark:text-white shadow-xs font-semibold' : 'text-slate-600 dark:text-zinc-400'}`}
           >
             1. Статус и школа
           </button>
           <button
             onClick={() => setActiveTab('tests')}
-            className={`px-3 py-1.5 rounded-lg transition ${activeTab === 'tests' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'}`}
+            className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition ${activeTab === 'tests' ? 'bg-white dark:bg-zinc-950 text-slate-900 dark:text-white shadow-xs font-semibold' : 'text-slate-600 dark:text-zinc-400'}`}
           >
             2. Оценки и экзамены
           </button>
           <button
             onClick={() => setActiveTab('goals')}
-            className={`px-3 py-1.5 rounded-lg transition ${activeTab === 'goals' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'}`}
+            className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition ${activeTab === 'goals' ? 'bg-white dark:bg-zinc-950 text-slate-900 dark:text-white shadow-xs font-semibold' : 'text-slate-600 dark:text-zinc-400'}`}
           >
             3. Направления и бюджет
           </button>
@@ -139,7 +169,7 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
           
           {/* Section 1: Basics */}
           {activeTab === 'basics' && (
-            <div className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200 shadow-xs space-y-5 animate-fadeIn">
+            <div className="bg-white dark:bg-zinc-900 p-6 sm:p-7 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-xs space-y-5 animate-fadeIn">
               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
                 <User className="w-4 h-4 text-slate-600" />
                 <span>Базовые сведения кандидата</span>
@@ -154,7 +184,7 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
                     type="text"
                     value={profile.name}
                     onChange={(e) => updateField('name', e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                     placeholder="Имя или инициалы"
                   />
                 </div>
@@ -169,7 +199,7 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
                     max={24}
                     value={profile.age}
                     onChange={(e) => updateField('age', parseInt(e.target.value) || 17)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                   />
                 </div>
               </div>
@@ -191,7 +221,7 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
                       key={g.id}
                       type="button"
                       onClick={() => updateField('grade', g.id as EducationGrade)}
-                      className={`py-2 px-3 rounded-xl text-xs font-semibold border transition ${profile.grade === g.id ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`}
+                      className={`py-2 px-3 rounded-xl text-xs font-semibold border transition-all duration-200 ${profile.grade === g.id ? 'bg-slate-900 text-white border-slate-900 shadow-md -translate-y-0.5' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-white hover:border-slate-300 hover:shadow-sm'}`}
                     >
                       {g.label}
                     </button>
@@ -217,7 +247,7 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
                       key={st.id}
                       type="button"
                       onClick={() => updateField('schoolType', st.id as ApplicantProfile['schoolType'])}
-                      className={`p-3 rounded-xl text-left border transition ${profile.schoolType === st.id ? 'bg-slate-100 border-slate-900 text-slate-900 font-semibold' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`}
+                      className={`p-3 rounded-xl text-left border transition-all duration-200 ${profile.schoolType === st.id ? 'bg-slate-100 border-slate-900 text-slate-900 font-semibold shadow-[0_4px_12px_rgba(0,0,0,0.05)] -translate-y-0.5' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-white hover:border-slate-300 hover:shadow-sm'}`}
                     >
                       <div className="text-xs font-semibold">{st.label}</div>
                       <div className="text-[10px] text-slate-500">{st.sub}</div>
@@ -242,7 +272,7 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
 
           {/* Section 2: Tests & Academics */}
           {activeTab === 'tests' && (
-            <div className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200 shadow-xs space-y-6 animate-fadeIn">
+            <div className="bg-white dark:bg-zinc-900 p-6 sm:p-7 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-xs space-y-6 animate-fadeIn">
               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
                 <GraduationCap className="w-4 h-4 text-slate-600" />
                 <span>Академические показатели и сертификаты</span>
@@ -416,7 +446,7 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
                       key={ol.id}
                       type="button"
                       onClick={() => updateField('olympiadLevel', ol.id as ApplicantProfile['olympiadLevel'])}
-                      className={`py-2 px-2.5 rounded-xl text-xs font-semibold border transition ${profile.olympiadLevel === ol.id ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`}
+                      className={`py-2 px-2.5 rounded-xl text-xs font-semibold border transition-all duration-200 ${profile.olympiadLevel === ol.id ? 'bg-slate-900 text-white border-slate-900 shadow-md -translate-y-0.5' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-white hover:border-slate-300 hover:shadow-sm'}`}
                     >
                       {ol.label}
                     </button>
@@ -449,11 +479,55 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
 
           {/* Section 3: Goals & Budget */}
           {activeTab === 'goals' && (
-            <div className="bg-white p-6 sm:p-7 rounded-2xl border border-slate-200 shadow-xs space-y-6 animate-fadeIn">
-              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+            <div className="bg-white dark:bg-zinc-900 p-6 sm:p-7 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-xs space-y-6 animate-fadeIn">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
                 <Compass className="w-4 h-4 text-slate-600" />
-                <span>Специальности, юрисдикции и финансирование</span>
+                <span>Специальности, вузы и финансирование</span>
               </h3>
+
+              <div>
+                <label className="text-xs font-medium text-slate-700 dark:text-zinc-300 mb-2 block">
+                  Внеучебные треки (мультивыбор)
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {EXTRA_CHIPS.map((chip) => {
+                    const on = (profile.extracurriculars || []).includes(chip.id);
+                    return (
+                      <button
+                        key={chip.id}
+                        type="button"
+                        onClick={() => toggleExtra(chip.id)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${on ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-zinc-900' : 'bg-slate-50 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border-slate-200 dark:border-zinc-700 hover:border-slate-400'}`}
+                      >
+                        {chip.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-medium text-slate-700 dark:text-zinc-300">Целевые университеты</label>
+                  <span className="text-[11px] text-slate-400">Выбрано: {(profile.targetUniversityIds || []).length}</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {UNIVERSITY_DATABASE.map((uni) => {
+                    const on = (profile.targetUniversityIds || []).includes(uni.id);
+                    return (
+                      <button
+                        key={uni.id}
+                        type="button"
+                        onClick={() => toggleUniversity(uni.id)}
+                        className={`p-3 rounded-xl text-left border transition ${on ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-zinc-900 shadow-md' : 'bg-slate-50 dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 hover:border-slate-400'}`}
+                      >
+                        <div className="text-xs font-bold leading-tight">{uni.shortName}</div>
+                        <div className={`text-[10px] mt-0.5 ${on ? 'text-slate-300 dark:text-zinc-500' : 'text-slate-500'}`}>{uni.city}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
               {/* Intended Majors Multi-select */}
               <div>
@@ -474,7 +548,7 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
                         key={m.id}
                         type="button"
                         onClick={() => toggleMajor(m.id)}
-                        className={`p-2.5 rounded-xl text-left border flex items-center gap-2.5 transition ${isSelected ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`}
+                        className={`p-2.5 rounded-xl text-left border flex items-center gap-2.5 transition-all duration-200 ${isSelected ? 'bg-slate-900 text-white border-slate-900 shadow-[0_4px_12px_rgba(0,0,0,0.1)] -translate-y-0.5' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-white hover:border-slate-300 hover:shadow-sm'}`}
                       >
                         <IconComponent className="w-4 h-4 shrink-0" />
                         <span className="text-xs font-medium leading-tight">{m.label}</span>
@@ -497,7 +571,7 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
                         key={r.id}
                         type="button"
                         onClick={() => toggleRegion(r.id)}
-                        className={`p-3 rounded-xl text-left border flex items-start justify-between transition ${isSelected ? 'bg-slate-50 border-slate-900 text-slate-900 ring-1 ring-slate-900' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`}
+                        className={`p-3 rounded-xl text-left border flex items-start justify-between transition-all duration-200 ${isSelected ? 'bg-slate-50 border-slate-900 text-slate-900 ring-1 ring-slate-900 shadow-[0_4px_12px_rgba(0,0,0,0.05)] -translate-y-0.5' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-white hover:border-slate-300 hover:shadow-sm'}`}
                       >
                         <div>
                           <div className="text-xs font-bold flex items-center gap-1.5">
@@ -530,7 +604,7 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
                       key={b.id}
                       type="button"
                       onClick={() => updateField('budgetTier', b.id as BudgetTier)}
-                      className={`p-3 rounded-xl text-left border transition ${profile.budgetTier === b.id ? 'bg-slate-100 border-slate-900 text-slate-950 font-medium' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`}
+                      className={`p-3 rounded-xl text-left border transition-all duration-200 ${profile.budgetTier === b.id ? 'bg-slate-100 border-slate-900 text-slate-950 font-medium shadow-[0_4px_12px_rgba(0,0,0,0.05)] -translate-y-0.5' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-white hover:border-slate-300 hover:shadow-sm'}`}
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold">{b.label}</span>
@@ -559,7 +633,7 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
                       key={tone.id}
                       type="button"
                       onClick={() => updateField('advisorTone', tone.id as AdvisorTone)}
-                      className={`p-2.5 rounded-xl text-left border transition ${profile.advisorTone === tone.id ? 'bg-slate-900 text-white border-slate-900 font-semibold' : 'bg-slate-50 text-slate-600 border-slate-200'}`}
+                      className={`p-2.5 rounded-xl text-left border transition-all duration-200 ${profile.advisorTone === tone.id ? 'bg-slate-900 text-white border-slate-900 font-semibold shadow-md -translate-y-0.5' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-white hover:border-slate-300 hover:shadow-sm'}`}
                     >
                       <div className="text-xs">{tone.label}</div>
                       <div className={`text-[10px] ${profile.advisorTone === tone.id ? 'text-slate-300' : 'text-slate-400'}`}>{tone.sub}</div>
@@ -596,7 +670,7 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
 
         {/* Right 1 Col: Live Real-time Profile Preview Card */}
         <div className="space-y-4">
-          <div className="sticky top-20 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+          <div className="sticky top-20 bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-xs space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <span className="text-xs font-bold text-slate-900">
                 Сводка профиля

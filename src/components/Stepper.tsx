@@ -32,25 +32,25 @@ export const Stepper: React.FC<StepperProps> = ({
   maxReachedStep,
 }) => {
   return (
-    <div className="w-full bg-white border-b border-slate-200 py-2.5">
+    <div className="w-full border-b border-slate-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-950/70 backdrop-blur py-3 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Mobile View */}
         <div className="flex sm:hidden items-center justify-between text-xs">
           <div className="flex items-center gap-2">
-            <span className="w-5 h-5 rounded-md bg-slate-900 text-white font-bold flex items-center justify-center text-[11px]">
+              <span className="w-6 h-6 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-zinc-900 font-bold flex items-center justify-center text-[11px] shadow-sm">
               {currentStep}
             </span>
-            <span className="font-semibold text-slate-800">
+            <span className="font-semibold text-slate-800 dark:text-zinc-100">
               {STEPS[currentStep - 1]?.title}
             </span>
             <span className="text-slate-400">
               ({currentStep}/7)
             </span>
           </div>
-          <div className="w-24 bg-slate-100 rounded-full h-1.5 overflow-hidden">
-            <div 
-              className="bg-slate-900 h-full rounded-full transition-all"
+          <div className="w-24 bg-slate-100 dark:bg-zinc-800 rounded-full h-1.5 overflow-hidden">
+            <div
+              className="bg-slate-900 dark:bg-white h-full rounded-full transition-all"
               style={{ width: `${(currentStep / 7) * 100}%` }}
             />
           </div>
@@ -71,7 +71,7 @@ export const Stepper: React.FC<StepperProps> = ({
                 onClick={() => isClickable && onStepClick(step.index)}
                 className={`flex items-center gap-2.5 p-2 rounded-xl text-left transition relative
                   ${isCurrent 
-                    ? 'bg-slate-100 text-slate-950 font-semibold' 
+                        ? 'bg-slate-100 dark:bg-zinc-800 text-slate-950 dark:text-white font-semibold shadow-sm'
                     : isCompleted 
                       ? 'hover:bg-slate-50 text-slate-600 cursor-pointer' 
                       : 'opacity-40 cursor-not-allowed text-slate-400'

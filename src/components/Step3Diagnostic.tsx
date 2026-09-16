@@ -51,7 +51,7 @@ export const Step3Diagnostic: React.FC<Step3DiagnosticProps> = ({
       </div>
 
       {/* Main Readiness Gauge + 4 Breakdown Pillars */}
-      <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 sm:p-8 border border-slate-200 dark:border-zinc-800 shadow-xs space-y-6">
         
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-6 border-b border-slate-100">
           
@@ -185,15 +185,15 @@ export const Step3Diagnostic: React.FC<Step3DiagnosticProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         {/* Left: Strengths */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+        <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-xs space-y-4">
           <div className="flex items-center gap-2 text-slate-900 font-bold text-sm uppercase tracking-wider">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <h3>Конкурентные преимущества профиля</h3>
+            <h3>Сильные стороны (Pros)</h3>
           </div>
 
           <div className="space-y-3">
             {strengths.map((item, idx) => (
-              <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+              <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1 hover:shadow-sm hover:bg-white hover:-translate-y-0.5 transition-all duration-200">
                 <h4 className="text-xs font-bold text-slate-900">
                   {item.title}
                 </h4>
@@ -206,17 +206,17 @@ export const Step3Diagnostic: React.FC<Step3DiagnosticProps> = ({
         </div>
 
         {/* Right: Bottlenecks */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+        <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-xs space-y-4">
           <div className="flex items-center gap-2 text-slate-900 font-bold text-sm uppercase tracking-wider">
             <AlertCircle className="w-4 h-4 text-amber-600" />
-            <h3>Зоны риска и ограничения</h3>
+            <h3>Зоны роста (Cons)</h3>
           </div>
 
           <div className="space-y-3">
             {bottlenecks.map((item, idx) => (
               <div 
                 key={idx} 
-                className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2"
+                className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2 hover:shadow-sm hover:bg-white hover:-translate-y-0.5 transition-all duration-200"
               >
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-bold text-slate-900">

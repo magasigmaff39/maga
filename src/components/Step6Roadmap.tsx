@@ -189,10 +189,10 @@ export const Step6Roadmap: React.FC<Step6RoadmapProps> = ({
                     <div
                       key={task.id}
                       onClick={() => onToggleSubtask(step.id, task.id)}
-                      className={`p-3 rounded-xl border transition flex items-center gap-3 cursor-pointer select-none
+                      className={`p-3 rounded-xl border transition-all duration-200 flex items-center gap-3 cursor-pointer select-none hover:-translate-y-0.5
                         ${task.isCompleted 
-                          ? 'bg-slate-50 border-slate-200 text-slate-500 line-through' 
-                          : 'bg-white border-slate-200 text-slate-800 hover:border-slate-300'}`}
+                          ? 'bg-slate-50 border-slate-200 text-slate-500 line-through opacity-70 hover:opacity-100' 
+                          : 'bg-white border-slate-200 text-slate-800 hover:border-slate-300 hover:shadow-sm'}`}
                     >
                       {task.isCompleted ? (
                         <CheckCircle2 className="w-4 h-4 text-slate-800 shrink-0" />

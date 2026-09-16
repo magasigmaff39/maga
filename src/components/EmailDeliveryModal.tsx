@@ -121,6 +121,7 @@ export const EmailDeliveryModal: React.FC<EmailDeliveryModalProps> = ({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="student@gmail.com"
+              autoComplete="email"
               className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900"
             />
           </div>

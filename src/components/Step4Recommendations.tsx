@@ -9,7 +9,8 @@ import {
   Building,
   Check
 } from 'lucide-react';
-import { University, FitTier, TargetRegion } from '../types';
+import { OddsBadge } from './ui/OddsBadge';
+import { FitTier, TargetRegion, University } from '../types';
 
 interface Step4RecommendationsProps {
   universities: University[];
@@ -92,7 +93,7 @@ export const Step4Recommendations: React.FC<Step4RecommendationsProps> = ({
       </div>
 
       {/* Filters Bar: Tiers & Regions */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-zinc-900 p-3 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-xs">
         
         {/* Tier Filters */}
         <div className="flex flex-wrap items-center gap-1.5 text-xs font-medium">
@@ -143,8 +144,8 @@ export const Step4Recommendations: React.FC<Step4RecommendationsProps> = ({
           return (
             <div
               key={uni.id}
-              className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden flex flex-col justify-between shadow-xs hover:border-slate-400
-                ${isCompared ? 'border-slate-900 ring-1 ring-slate-900' : 'border-slate-200'}`}
+              className={`bg-white dark:bg-zinc-900 rounded-2xl border transition-all duration-300 overflow-hidden flex flex-col justify-between hover:shadow-lg hover:-translate-y-1 hover:border-slate-300 dark:hover:border-zinc-600
+                ${isCompared ? 'border-slate-900 ring-1 ring-slate-900 dark:border-white dark:ring-white shadow-[0_4px_12px_rgba(15,23,42,0.1)]' : 'border-slate-200 dark:border-zinc-800 shadow-xs'}`}
             >
               <div className="p-6 space-y-4">
                 
@@ -164,10 +165,11 @@ export const Step4Recommendations: React.FC<Step4RecommendationsProps> = ({
                     </div>
                   </div>
 
-                  <div className="text-right shrink-0">
-                    <div className="text-xs font-bold font-mono text-slate-900 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+                  <div className="text-right shrink-0 space-y-1.5">
+                    <div className="text-xs font-bold font-mono text-slate-900 dark:text-white bg-slate-100 dark:bg-zinc-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-zinc-700">
                       {uni.matchScore}% Match
                     </div>
+                    <OddsBadge score={uni.matchScore} />
                   </div>
                 </div>
 

@@ -12,6 +12,7 @@ import { EssayArchitectModal } from './components/EssayArchitectModal';
 import { DeadlineCalendarModal } from './components/DeadlineCalendarModal';
 import { AuthModal } from './components/AuthModal';
 import { EmailDeliveryModal } from './components/EmailDeliveryModal';
+import { AIAssistantWidget } from './components/AIAssistantWidget';
 import { getActiveUser, logoutUser, UserAccount } from './lib/firebase';
 
 import { ApplicantProfile, RoadmapStep } from './types';
@@ -37,7 +38,8 @@ export function App() {
   const [profile, setProfile] = useState<ApplicantProfile>(() => {
     try {
       const saved = localStorage.getItem('admitroute_profile');
-      const base = saved ? JSON.parse(saved) : DEFAULT_PROFILE;
+      const parsed = saved ? JSON.parse(saved) : {};
+      const base = { ...DEFAULT_PROFILE, ...parsed, extracurriculars: parsed.extracurriculars || DEFAULT_PROFILE.extracurriculars, targetUniversityIds: parsed.targetUniversityIds || DEFAULT_PROFILE.targetUniversityIds };
       const user = getActiveUser();
       if (user) {
         return {
@@ -65,6 +67,13 @@ export function App() {
       console.warn('LocalStorage save failed', e);
     }
   }, [profile]);
+
+  const handleProfileChange = (updated: ApplicantProfile) => {
+    setProfile(updated);
+    if (updated.targetUniversityIds?.length >= 2) {
+      setSelectedForCompare(updated.targetUniversityIds);
+    }
+  };
 
   const diagnostic = useMemo(() => runDiagnostic(profile), [profile]);
   const matchedUniversities = useMemo(() => matchUniversities(profile), [profile]);
@@ -181,7 +190,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-slate-900 selection:text-white">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--ink)] flex flex-col font-sans overflow-x-hidden transition-colors duration-300">
       
       {/* Top Header */}
       <Header
@@ -203,7 +212,7 @@ export function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         
         {/* Step 1: Landing */}
         {currentStep === 1 && (
@@ -218,7 +227,7 @@ export function App() {
         {currentStep === 2 && (
           <Step2Profile
             profile={profile}
-            onChangeProfile={setProfile}
+            onChangeProfile={handleProfileChange}
             onNext={() => goToStep(3)}
             onBack={() => goToStep(1)}
           />
@@ -285,15 +294,10 @@ export function App() {
       </main>
 
       {/* Clean Professional Footer */}
-      <footer className="bg-white border-t border-slate-200 py-6 mt-12 text-xs text-slate-500">
+      <footer className="border-t border-slate-200 dark:border-zinc-800 py-8 mt-12 text-xs text-slate-500 dark:text-zinc-400 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="font-semibold text-slate-800">
-            AdmitRoute
-          </div>
-
-          <div className="text-slate-400">
-            Платформа академической навигации и планирования поступления в университеты
-          </div>
+          <div className="font-extrabold text-slate-800 dark:text-white text-sm">AdmitRoute</div>
+          <div>Платформа академической навигации · SaaS для абитуриентов</div>
         </div>
       </footer>
 
@@ -326,6 +330,8 @@ export function App() {
         roadmap={roadmap}
         matchedUnis={matchedUniversities}
       />
+
+      <AIAssistantWidget />
 
     </div>
   );

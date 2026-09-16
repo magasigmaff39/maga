@@ -74,7 +74,7 @@ ${futureText}
         </div>
 
         {/* 4 Steps Tabs */}
-        <div className="grid grid-cols-4 border-b border-slate-200 bg-slate-100 text-xs font-semibold text-center">
+        <div className="flex overflow-x-auto border-b border-slate-200 bg-slate-100 text-xs font-semibold text-center whitespace-nowrap hide-scrollbar">
           {[
             { id: 1, label: '1. Импульс' },
             { id: 2, label: '2. Проекты' },
@@ -84,7 +84,7 @@ ${futureText}
             <button
               key={part.id}
               onClick={() => setActivePart(part.id)}
-              className={`py-3 px-2 transition border-b-2
+              className={`py-3 px-4 min-w-[120px] sm:min-w-0 sm:flex-1 transition border-b-2
                 ${activePart === part.id ? 'border-slate-900 bg-white text-slate-900 font-bold' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
             >
               {part.label}

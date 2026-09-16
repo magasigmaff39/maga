@@ -38,6 +38,8 @@ export interface ApplicantProfile {
   olympiadLevel: 'none' | 'school' | 'city' | 'republican' | 'international';
   olympiadDetails?: string;
   leadershipActivities: string[];
+  extracurriculars: string[];
+  targetUniversityIds: string[];
   
   // Goals & Constraints
   targetMajors: IntendedMajor[];
