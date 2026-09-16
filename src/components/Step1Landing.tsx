@@ -11,7 +11,7 @@ import {
   Map,
 } from 'lucide-react';
 import { UserAccount } from '../lib/firebase';
-import { StickmenGraduates3D } from './ui/StickmenGraduates3D';
+import { Stickman2DGraduate } from './ui/Stickman2DGraduate';
 
 interface Step1LandingProps {
   onStartCustom: () => void;
@@ -155,11 +155,11 @@ export const Step1Landing: React.FC<Step1LandingProps> = ({
           </div>
 
           {/* 
-            Right Column: 5 3D Stickmen Graduates
-            Interactive 3D WebGL Scene with 3D cap toss animation, no frame, no extra text, no confetti
+            Right Column: 2D Stickman Graduate
+            Interactive 2D character with parabolic cap toss animation, eye tracking, no frame, no extra text, no confetti
           */}
           <div className="lg:col-span-6 w-full flex items-center justify-center relative">
-            <StickmenGraduates3D triggerToss={tossTrigger} />
+            <Stickman2DGraduate triggerToss={tossTrigger} />
           </div>
 
         </div>
