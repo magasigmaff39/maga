@@ -1,0 +1,5 @@
+node_modules
+server
+shared
+.env*
+.secret.local
